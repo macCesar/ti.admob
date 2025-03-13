@@ -8,10 +8,8 @@
 package ti.admob;
 
 import androidx.annotation.NonNull;
-
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.LoadAdError;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -40,7 +38,8 @@ public class CommonAdListener extends AdListener
 	}
 
 	@Override
-	public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+	public void onAdFailedToLoad(@NonNull LoadAdError loadAdError)
+	{
 		super.onAdFailedToLoad(loadAdError);
 		Log.d(this.sourceTag, "onAdFailedToLoad(): " + loadAdError);
 		KrollDict eventData = new KrollDict();
@@ -69,7 +68,8 @@ public class CommonAdListener extends AdListener
 	}
 
 	@Override
-	public void onAdClicked() {
+	public void onAdClicked()
+	{
 		super.onAdClicked();
 		this.sourceProxy.fireEvent(AdmobModule.EVENT_AD_LEFT_APP, new KrollDict());
 	}

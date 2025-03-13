@@ -1,4 +1,11 @@
 # Change Log
+v6.1.0  Update Google Mobile Ads SDK 22.5.0
+        Update Audience Network SDK 6.14.0
+        Update InMobi SDK 10.1.2
+        Update module API to reflect changes in AdMob SDK
+        Removed deprecated methods
+        Improved handling of interstitial ads
+
 v5.0.6  Update Google Mobile Ads SDK 19.8.0
         Update Audience Network SDK 6.+
         Update Facebook Adapter 6.3.0.1

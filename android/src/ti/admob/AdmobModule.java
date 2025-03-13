@@ -13,9 +13,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
-
 import com.google.ads.consent.AdProvider;
 import com.google.ads.consent.ConsentForm;
 import com.google.ads.consent.ConsentFormListener;
@@ -24,16 +22,17 @@ import com.google.ads.consent.ConsentInformation;
 import com.google.ads.consent.ConsentStatus;
 import com.google.ads.consent.DebugGeography;
 import com.google.ads.mediation.admob.AdMobAdapter;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.inmobi.sdk.InMobiSdk;
 import com.google.ads.mediation.inmobi.InMobiConsent;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.inmobi.sdk.InMobiSdk;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -163,8 +162,9 @@ public class AdmobModule extends KrollModule
 	{
 		MobileAds.initialize(TiApplication.getInstance(), new OnInitializationCompleteListener() {
 			@Override
-			public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
-
+			public void onInitializationComplete(InitializationStatus initializationStatus)
+			{
+				Log.d(TAG, "AdMob SDK initialized successfully");
 			}
 		});
 	}
@@ -176,21 +176,13 @@ public class AdmobModule extends KrollModule
 		return GooglePlayServicesUtil.isGooglePlayServicesAvailable(TiApplication.getAppRootOrCurrentActivity());
 	}
 
-	// clang-format off
-	@Kroll.setProperty
-	@Kroll.method
-	public void setPublisherId(String pubId)
-	// clang-format on
-	{
-		Log.d(TAG, "setPublisherId(): " + pubId);
-		PUBLISHER_ID = pubId;
-	}
-
 	@Kroll.method
 	public void setTesting(boolean testing)
 	{
 		Log.d(TAG, "setTesting(): " + testing);
-		TESTING = testing;
+		List<String> testDeviceIds = Arrays.asList(AdRequest.DEVICE_ID_EMULATOR);
+		RequestConfiguration configuration = new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+		MobileAds.setRequestConfiguration(configuration);
 	}
 
 	@Kroll.method
@@ -493,10 +485,10 @@ public class AdmobModule extends KrollModule
 
 	@Kroll.method
 	public void setInMobi_updateGDPRConsent(boolean isEnable)
-	{		
+	{
 		JSONObject consentObject = new JSONObject();
 		try {
-			if (isEnable){
+			if (isEnable) {
 				consentObject.put(InMobiSdk.IM_GDPR_CONSENT_AVAILABLE, true);
 				consentObject.put("gdpr", "1");
 				Log.d(TAG, "inMobi GDPR enabled");

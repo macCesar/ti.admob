@@ -8,19 +8,27 @@ dependencies {
 	implementation 'com.google.android.ads.consent:consent-library:1.0.8'
 	/* Facebook */
 	implementation 'androidx.annotation:annotation:1.0.0'
-	implementation 'com.facebook.android:audience-network-sdk:6.+'
-	implementation 'com.google.ads.mediation:facebook:6.8.0.0'
-	/* inMobi */
-	implementation 'com.inmobi.monetization:inmobi-ads:10.0.1'
-	implementation 'com.google.ads.mediation:inmobi:10.0.1.0'
+	implementation 'com.facebook.android:audience-network-sdk:6.14.0'
+	implementation 'com.google.ads.mediation:facebook:6.14.0.0'
+
+
+	implementation 'com.google.ads.mediation:inmobi:10.1.2.1'
 	//implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-	implementation 'com.google.android.gms:play-services-location:18.0.0'//optional dependency for better targeting
+	implementation 'com.google.android.gms:play-services-location:21.0.1'//optional dependency for better targeting
 	/****/
-	implementation 'com.google.android.gms:play-services-base:17.6.0'
-	implementation 'com.google.android.gms:play-services-ads:20.5.0'
+	implementation 'com.google.android.gms:play-services-base:18.2.0'
+	implementation 'com.google.android.gms:play-services-ads:22.5.0'
 	implementation 'com.google.android.gms:play-services-ads-base:20.5.0'
-	implementation 'com.google.android.gms:play-services-ads-identifier:17.1.0'
-	implementation 'com.google.android.gms:play-services-ads-lite:20.5.0'
+	implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+	implementation 'com.google.android.gms:play-services-ads-lite:22.5.0'
 	implementation 'com.google.firebase:firebase-ads:20.5.0'
 	implementation 'com.google.firebase:firebase-ads-lite:20.5.0'
+}
+
+android {
+    defaultConfig {
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
+    }
 }

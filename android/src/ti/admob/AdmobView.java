@@ -8,12 +8,11 @@
 package ti.admob;
 
 import android.os.Bundle;
-import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.mediation.admob.AdMobExtras;
+import com.google.android.gms.ads.LoadAdError;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -64,20 +63,15 @@ public class AdmobView extends TiUIView
 	}
 
 	//Deprecated in 5.0.0. Should be remove in 6.0.0
-	private void loadAd(final Boolean testing, Bundle extrasBundle)
+	private void loadAd(final KrollDict options)
 	{
 		proxy.getActivity().runOnUiThread(new Runnable() {
 			public void run()
 			{
 				final AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
-				Log.d(TAG, "requestAd(Boolean testing) -- testing:" + testing);
-				if (testing) {
-					//adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-				}
-				Bundle bundle = createAdRequestProperties();
-				if (bundle.size() > 0) {
-					Log.d(TAG, "extras.size() > 0 -- set ad properties");
-					adRequestBuilder.addNetworkExtras(new AdMobExtras(bundle));
+				if (options != null && options.containsKeyAndNotNull("extras")) {
+					Bundle extras = AdmobModule.mapToBundle(options.getKrollDict("extras"));
+					adRequestBuilder.addNetworkExtrasBundle(AdMobAdapter.class, extras);
 				}
 				adView.loadAd(adRequestBuilder.build());
 			}

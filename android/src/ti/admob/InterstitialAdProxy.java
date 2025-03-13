@@ -8,19 +8,17 @@
 package ti.admob;
 
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
-
-import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 
 @Kroll.proxy(creatableInModule = AdmobModule.class)
 public class InterstitialAdProxy extends KrollProxy
@@ -68,35 +66,69 @@ public class InterstitialAdProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void load(@Kroll.argument(optional = true) KrollDict options)
+	public void load(final KrollDict options)
 	{
-		AdRequest.Builder adRequestBuilder = AdmobModule.createRequestBuilderWithOptions(options);
-		mInterstitialAd.load(getActivity(), adId, adRequestBuilder.build(), new InterstitialAdLoadCallback() {
-			@Override
-			public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-				super.onAdLoaded(interstitialAd);
-				mInterstitialAd = interstitialAd;
-				fireEvent(AdmobModule.EVENT_AD_LOAD, new KrollDict());
-			}
+		if (options != null && options.containsKeyAndNotNull("adUnitId")) {
+			adId = options.getString("adUnitId");
+		}
 
-			@Override
-			public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-				super.onAdFailedToLoad(loadAdError);
-				mInterstitialAd  = null;
-				KrollDict eventData = new KrollDict();
-				eventData.put("errorCode", loadAdError);
-				fireEvent(AdmobModule.EVENT_AD_FAIL, eventData);
-			}
-		});
+		AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
+		if (options != null && options.containsKeyAndNotNull("extras")) {
+			Bundle extras = AdmobModule.mapToBundle(options.getKrollDict("extras"));
+			adRequestBuilder.addNetworkExtrasBundle(AdMobAdapter.class, extras);
+		}
+
+		InterstitialAd.load(TiApplication.getInstance(), adId, adRequestBuilder.build(),
+							new InterstitialAdLoadCallback() {
+								@Override
+								public void onAdLoaded(@NonNull InterstitialAd interstitialAd)
+								{
+									mInterstitialAd = interstitialAd;
+									Log.d(TAG, "Interstitial ad loaded");
+									fireEvent("load", new KrollDict());
+								}
+
+								@Override
+								public void onAdFailedToLoad(@NonNull LoadAdError loadAdError)
+								{
+									Log.e(TAG, "Interstitial ad failed to load: " + loadAdError.getMessage());
+									KrollDict error = new KrollDict();
+									error.put("message", loadAdError.getMessage());
+									error.put("code", loadAdError.getCode());
+									fireEvent("fail", error);
+								}
+							});
 	}
 
 	@Kroll.method
 	public void show()
 	{
-		if (this.mInterstitialAd != null) {
-			this.mInterstitialAd.show(getActivity());
+		if (mInterstitialAd != null) {
+			mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+				@Override
+				public void onAdDismissedFullScreenContent()
+				{
+					fireEvent("close", new KrollDict());
+				}
+
+				@Override
+				public void onAdFailedToShowFullScreenContent(com.google.android.gms.ads.AdError adError)
+				{
+					KrollDict error = new KrollDict();
+					error.put("message", adError.getMessage());
+					error.put("code", adError.getCode());
+					fireEvent("fail", error);
+				}
+
+				@Override
+				public void onAdShowedFullScreenContent()
+				{
+					fireEvent("open", new KrollDict());
+				}
+			});
+			mInterstitialAd.show(TiApplication.getAppCurrentActivity());
 		} else {
-			Log.w(TAG, "Trying to show an ad that has not been loaded.");
+			Log.d(TAG, "The interstitial ad wasn't ready yet.");
 		}
 	}
 }
